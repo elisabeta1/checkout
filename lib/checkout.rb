@@ -1,12 +1,11 @@
 require "#{File.dirname(__FILE__)}/../lib/promotional_rules"
 require "#{File.dirname(__FILE__)}/../lib/product"
-require 'pry'
 
 class Checkout
-  def initialize (rules)
+  def initialize(promotion_rules)
     @products = []
     @products_hash = {}
-    PromotionalRules.add(rules)
+    PromotionalRules.add(promotion_rules)
   end
 
   def scan(product)
@@ -15,14 +14,16 @@ class Checkout
     @products_hash[product.code] += 1
   end
 
-  def total
-    sum = 0
+  def before_total
     @products = PromotionalRules.quantity_discount(@products_hash, @products)
-    
-    @products.each do |product|
-      sum += product.price
+  end
+
+  def total
+    total_amount = 0
+    before_total.each do |product|
+      total_amount += product.price
     end
-    sum = PromotionalRules.sum_discount(sum)
+    total_amount = PromotionalRules.spending_more_discount(total_amount)
   end
 
 end
