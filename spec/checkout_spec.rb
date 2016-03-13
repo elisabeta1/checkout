@@ -12,11 +12,11 @@ RSpec.describe Checkout do
     # set the promotional rules
     @promotional_rules << PromotionalRules.new(type: :discount, amount: 60, reduce: 10)
     @promotional_rules << PromotionalRules.new(type: :quantity, amount: 2, reduce: 8.50, code: 001)
+    @promotional_rules << PromotionalRules.new(type: :multi_buy, amount: 3, code: 003)
   end
 
   it "Checks the 10% off when are spent more then £60" do
     co = Checkout.new(@promotional_rules)
-
     co.scan(@products[0])
     co.scan(@products[1])
     co.scan(@products[2])
@@ -38,5 +38,13 @@ RSpec.describe Checkout do
     co.scan(@products[0])
     co.scan(@products[2])
     expect(co.total).to eq(73.76)
+  end
+
+  it "Checks that test basket gives 39.90" do
+    co = Checkout.new(@promotional_rules)
+    co.scan(@products[2])
+    co.scan(@products[2])
+    co.scan(@products[2])
+    expect(co.total).to eq(39.90)
   end
 end

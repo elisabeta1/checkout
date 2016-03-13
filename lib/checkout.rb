@@ -13,16 +13,22 @@ class Checkout
     @products << product
   end
 
-  def before_total
-    @products = PromotionalRules.quantity_discount(@products, @promotion_rules)
+  def quantity_discount
+    PromotionalRules.quantity_discount(@products, @promotion_rules)
+  end
+  def multibuyers
+    PromotionalRules.multibuyers(@products, @promotion_rules)
   end
 
   def total
     total_amount = 0
-    before_total.each do |product|
+    @products.each do |product|
+
       total_amount += product.price
     end
-    total_amount = PromotionalRules.spending_more_discount(total_amount, @promotion_rules)
+    total_amount = total_amount - quantity_discount
+    total_amount = total_amount - multibuyers
+    total_amount = PromotionalRules.spending_more_discount(total_amount, @promotion_rules).round(2)
   end
 
 end
